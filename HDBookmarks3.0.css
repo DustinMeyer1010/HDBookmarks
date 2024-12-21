@@ -104,10 +104,18 @@ a {
   outline: 1px solid;
 }
 
+.links .link:hover .Chrismas-Hat{
+  display: inline;
+}
+
 .links .link:focus {
   transform: scale(1.05);
   background: rgba(255,255,255,0.1);
   outline: 1px solid;
+}
+
+.links .link:focus .Chrismas-Hat{
+  display: inline;
 }
 
 .links .link img{
@@ -216,6 +224,7 @@ nav img{
 
 .Chrismas-Hat {
   position: absolute;
+  display: None;
   height: 100px !important;
   width: auto !important;
   opacity: 100% !important;
