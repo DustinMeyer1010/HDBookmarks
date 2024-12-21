@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <title>Common AD Groups</title>
+    <link
+      rel="icon"
+      href="\\ntsdrive05\isd_share\Cust_Serv\Help Desk Info\Tools\HDBookmarks_2.0\URMC.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Renders the font used for the website-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="HDBookmarks3.0.css">
+    <link rel="stylesheet" href="CommonADGroups.css">
+    <script src="CommonADGroup.js"></script>
+    <script src="snowfall.js"></script>
+  </head>
+
+  <!--Load the links on page when opening-->
+  <body onload="loadPage()" id="main">
+    <nav>
+      <a href="HDBookmarks3.0.html">
+        <span>  
+          <img src="\\ntsdrive05\isd_share\Cust_Serv\Help Desk Info\Tools\HDBookmarks_2.0\URMC.ico" type="image/x-icon"/>
+          URMC Bookmarks
+        </span>
+      </a>
+      <form id="filter-form" onsubmit="goToFirstLink(event)">
+        <input
+        type="text"
+        class="search"
+        id="filter-search"
+        onkeyup="filterSearch()"
+        placeholder="Search for link" 
+        />
+    </form>
+      <a href="CommonADGroups.html">Common AD Groups</a>
+    </nav>
+
+      <div id="ad-groups">
+
+      </div>
+    </div>
+
+
+  </body>
+
+  
+  <script>
+    // Focus on the search field when loaded
+    document.getElementById("filter-search").focus();
+    document.getElementById("filter-search").select();
+  </script>
+
+  
+</html>

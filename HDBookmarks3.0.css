@@ -1,0 +1,253 @@
+body {
+  background: #121212;
+  font-family: roboto;
+  letter-spacing: 0.8px;
+  padding-top: 50px;
+  overflow-x: hidden;
+}
+
+.page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10px;
+}
+
+input {
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-sizing: border-box;
+  width: 600px;
+  height: 40px;
+  font-size: 16px;
+  border-radius: 10px;
+  background-color: transparent;
+  color: white;
+  text-align: center;
+}
+
+input:focus {
+  outline: none;
+}
+
+.information {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  color: white;
+}
+
+.information div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.information a {
+  padding: 15px;
+  box-sizing: border-box;
+  text-align: center;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.information p {
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: -5px;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-family: roboto;
+}
+
+a {
+  text-decoration: None;
+  color: white;
+}
+
+
+.links {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  margin-top: 30px;
+  gap: 30px;
+  flex-wrap: wrap;
+  color: white;
+}
+
+.links .link{
+  position: relative;
+  text-align: center;
+  text-wrap: wrap;
+  max-width: 20%;
+  padding: 5px 20px;
+  border-radius: 20px;
+  cursor: default;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: 0.2s ease-in-out;
+}
+
+.links .link:hover {
+  transform: scale(1.05);
+  background: rgba(255,255,255,0.1);
+  outline: 1px solid;
+}
+
+.links .link:focus {
+  transform: scale(1.05);
+  background: rgba(255,255,255,0.1);
+  outline: 1px solid;
+}
+
+.links .link img{
+  border-radius: 10px;
+  width: 100%;
+  opacity: 90%;
+}
+
+.links .link h1 {
+  font-size: 18px;
+}
+.links .link p {
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.copy-buttons button {
+  font-family: roboto;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: transparent;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 10px;
+  min-width: 20%;
+  max-height: fit-content;
+  align-self: center;
+}
+
+.copy-buttons button:hover {
+  transform: scale(1.05);
+  background: rgba(255,255,255,0.1);
+  outline: 1px solid;
+}
+
+.copy-buttons button sub {
+  font-weight: 300;
+}
+
+.copy-links {
+  display: flex;
+  width: 100vw;
+  height: auto;
+  gap: 20px;
+  justify-content: space-evenly;
+  margin-bottom: 10px;
+}
+
+.ad-groups{
+  margin: 10px;
+  padding: 10px;
+}
+
+.ad-groups:hover {
+  margin: 10px;
+  padding: 10px;
+}
+
+nav {
+  position: fixed;
+  display: flex;
+  color: white;
+  justify-content: space-between;
+  box-sizing: border-box;
+  align-items: center;
+  padding: 10px;
+  z-index: 100;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  height: 50px;
+  text-align: center;
+
+  background: rgba(13, 110, 253, 0.6);
+  backdrop-filter: blur(20px);
+  z-index: 10;
+}
+
+nav img{
+  height: 20px;
+  width: 20px;
+  margin-bottom: -4px;
+}
+
+.copy-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.snowflake {
+  position: absolute;
+  top: -100px;
+  font-size: 50px;
+  height: 100px;
+  width: 100px;
+  user-select: none;
+  pointer-events: none;
+  animation: fall 5s linear forwards;
+  transition: 1s;
+  z-index: 4;
+  background-image: url(Assests/snowflake.png);
+  background-size: cover;
+  opacity: 30%;
+}
+
+.Chrismas-Hat {
+  position: absolute;
+  height: 100px !important;
+  width: auto !important;
+  opacity: 100% !important;
+  left: 82%;
+  bottom: 80%;
+  transform: rotate(5deg);
+  z-index: 5 !important;
+}
+
+#snow-toggle {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  border: 3px inset rgba(255, 255, 255, 0.6);
+  border-radius: 40px;
+  width: 65px;
+  height: 35px;
+  box-sizing: border-box;
+  padding: 5px;
+  background: green;
+}
+
+#snow-toggle #ball {
+  height: 25px;
+  width: 25px;
+  background: white;
+  border-radius: 30px;
+  transition: 1s ease-in;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(80vh) rotate(360deg);
+  }
+}

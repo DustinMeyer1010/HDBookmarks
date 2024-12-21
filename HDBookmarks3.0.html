@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+    <title>HDBookmarks3.0</title>
+    <link
+      rel="icon"
+      href="\\ntsdrive05\isd_share\Cust_Serv\Help Desk Info\Tools\HDBookmarks_2.0\URMC.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Renders the font used for the website-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+    <!--Pre-loads first images to make the appear faster-->
+    <link rel="preload" href="Assests/Vault.png" as="image">
+    <link rel="preload" href="Assests/Internal_SN.png" as="image">
+    <link rel="preload" href="Assests/Service_Portal.png" as="image">
+    <link rel="preload" href="Assests/Zoom_Status.png" as="image">
+    <link rel="preload" href="Assests/Microsoft_Office_Status.png" as="image">
+    <link rel="preload" href="Assests/Down_Detector.png" as="image">
+    <link rel="preload" href="Assests/URMC_System_Status.png" as="image">
+    <link rel="preload" href="Assests/UIT_Alerts.png" as="image">
+    <link rel="preload" href="Assests/Chrismas_Hat.png" as="image">
+
+    <link rel="stylesheet" href="HDBookmarks3.0.css">
+    <script src="HDBookmarks3.0.js"></script>
+    <script src="snowfall.js"></script>
+
+  </head>
+
+  <!--Load the links on page when opening-->
+  <body onload="loadPage()" id="main" >
+    <nav >
+      <a>
+        <span>  
+          <img src="\\ntsdrive05\isd_share\Cust_Serv\Help Desk Info\Tools\HDBookmarks_2.0\URMC.ico" type="image/x-icon"/>
+          URMC Bookmarks
+        </span>
+      </a>
+      <form id="filter-form" onsubmit="goToFirstLink(event)">
+        <input
+        type="text"
+        class="search"
+        id="filter-search"
+        onkeyup="filterSearch()"
+        placeholder="Search for link" 
+        />
+    </form>
+      <a href="CommonADGroups.html">Common AD Groups</a>
+    </nav>
+
+    <div class="page">
+      <div class="information">
+        <div><a href="Update.html">3.1 Update information</a>Snow: <button id="snow-toggle" onclick="setSnowToggle(this)"><div id="ball"></div></button></div>
+        <p>For Reqest and Bug fixes Contact: Dustin Meyer</p>
+      </div>
+      <div class="copy-buttons">
+      <button onclick=copyToClipboard(this) tabindex="-1">
+        <span>Haiku Server and Path</span>
+        <br/>
+        <sub>Click to Copy</sub>
+      </button>
+      <button onclick=copyToClipboard(this) tabindex="-1">
+        <span>Dimensions Tenant URL</span>
+        <br/>
+        <sub>Click to Copy</sub>
+      </button>
+      <button onclick=copyToClipboard(this) tabindex="-1">
+        <span>SCCM Computer Name</span>
+        <br/>
+        <sub>Click to Copy</sub>
+      </button>
+      <button onclick=copyToClipboard(this) tabindex="-1">
+        <span>Pager Number</span>
+        <br/>
+        <sub>Click to Copy</sub>
+      </button>
+    </div>
+
+      <div class="links" id="all-links">
+      </div>
+    </div>
+
+
+  </body>
+  <script>
+    // Focus on the search field when loaded
+
+    document.getElementById("filter-search").focus();
+    document.getElementById("filter-search").select();
+  </script>
+</html>
