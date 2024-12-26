@@ -1,0 +1,10 @@
+:root {
+  --background-color-dark: #121212;
+  background: var(--background-color-dark);
+  font-family: roboto;
+  overflow-x: hidden;
+}
+
+body {
+  padding-top: 50px;
+}

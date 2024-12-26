@@ -26,7 +26,9 @@
     <link rel="preload" href="Assests/Chrismas_Hat.png" as="image">
 
     <!-- Loads files for html file-->
-    <link rel="stylesheet" href="HDBookmarks3.0.css">
+    <link rel="stylesheet" href="Styles/HDBookmarks3.0.css">
+    <link rel="stylesheet" href="Styles/navbar.css">
+    <link rel="stylesheet" href="Styles/global.css">
     <script src="HDBookmarks3.0.js"></script>
     <script src="snowfall.js"></script>
 
@@ -34,12 +36,16 @@
 
   <!--Load the links on page when opening-->
   <body onload="loadPage()" id="main" >
-    <nav >
-      <a>
+    <nav>
+      <a href="HDBookmarks3.0.html">
         <span>  
           <img src="\\ntsdrive05\isd_share\Cust_Serv\Help Desk Info\Tools\HDBookmarks_2.0\URMC.ico" type="image/x-icon"/>
           URMC Bookmarks
         </span>
+        <div id="other-links">
+          <a href="Pages/SystemSummary.html">System Summary Index</a>
+          <a href="Pages/CommonADGroups.html">Common AD Groups</a>
+        </div>
       </a>
       <form id="filter-form" onsubmit="goToFirstLink(event)">
         <input
@@ -49,14 +55,13 @@
         onkeyup="filterSearch()"
         placeholder="Search for link" 
         />
-    </form>
-      <a href="CommonADGroups.html">Common AD Groups</a>
+      </form>
     </nav>
 
     <div class="page">
       <div class="information">
-        <div><a href="Update.html">3.1 Update information</a>Snow: <button id="snow-toggle" onclick="setSnowToggle(this)" tabindex="-1"><div id="ball"></div></button></div>
-        <p>For Reqest and Bug fixes Contact: Dustin Meyer</p>
+        <div><a href="Pages/Update.html">3.1 Update Logs</a>Snow: <button id="snow-toggle" onclick="setSnowToggle(this)" tabindex="-1"><div id="ball"></div></button></div>
+        <p>For Request and Bug Fixes Contact: Dustin Meyer</p>
       </div>
       <div class="copy-buttons">
       <button onclick=copyToClipboard(this) tabindex="-1">

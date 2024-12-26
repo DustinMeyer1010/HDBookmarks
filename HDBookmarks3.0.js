@@ -252,7 +252,7 @@ function filterSearch() {
     `,
         `
     <a class="link" href="https://myidentity.rochester.edu/cast/" target="_blank" tabindex="0">
-      <h1 class="title">Compormised Accounts</h1>
+      <h1 class="title">Compromised Accounts</h1>
       <img class="preview" src="Assests/Compromised_Account.png" loading="lazy"/>
       <p class="description">Check status of someones account</p>
     </a>
