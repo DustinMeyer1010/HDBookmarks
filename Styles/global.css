@@ -3,6 +3,7 @@
   background: var(--background-color-dark);
   font-family: roboto;
   overflow-x: hidden;
+  color: white;
 }
 
 body {

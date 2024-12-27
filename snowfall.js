@@ -37,7 +37,7 @@ function createSnowFlake() {
     snowflake.style.top = scrolled - 50 + "px";
     snowflake.style.left = Math.floor(Math.random() * 100) + "%";
     const flake_size = Math.floor(Math.random() * 100) + 100 + "px";
-    const snowflake_type = all_snowflake[Math.floor(Math.random() * 4)];
+    const snowflake_type = all_snowflake[Math.floor(Math.random() * all_snowflake.length)];
     snowflake.style.height = flake_size;
     snowflake.style.width = flake_size;
 

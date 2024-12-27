@@ -17,18 +17,18 @@ function filterSearch() {
 
     // All links shown on the page
     links_array = [
+      `
+      <a class="link" href="https://urmcprod.service-now.com" target="_blank" tabindex="0"> 
+        <h1 class="title">Internal ServiceNow</h1> 
+        <img class="preview" src="Assests/Internal_SN.png" loading="eager"/> 
+        <p class="description"></p> 
+      </a>
+      `,
         `    
     <a class="link" href="https://acute-reminder-436.notion.site/Knowledge-Vaults-619e147511424be38961c00734e0d540" target="_blank" tabindex="0">
       <h1 class="title">Knowledge Vault</h1>
       <img class="preview" src="Assests/Vault.png" loading="eager"/>
       <p class="description">Dustin's Notes</p>
-    </a>
-    `,
-        `
-    <a class="link" href="https://urmcprod.service-now.com" target="_blank" tabindex="0"> 
-      <h1 class="title">Internal ServiceNow</h1> 
-      <img class="preview" src="Assests/Internal_SN.png" loading="eager"/> 
-      <p class="description"></p> 
     </a>
     `,
         `   
@@ -486,6 +486,18 @@ function filterSearch() {
       <h1 class="title">Haiku</h1>
       <img class="preview" src="Assests/Haiku.png" loading="lazy"/>
       <p class="description">Server = ercd-sproxy.urmc.rochester.edu<br/>Path = soapproxies-haiku</p>
+    </a>
+    `,
+    `
+    <a class="link" href="https://myidentity.rochester.edu/urmctemplateviewer/templates.jsp" target="_blank" tabindex="0">
+      <h1 class="title">MyIdentity Template Viewer</h1>
+      <img class="preview" src="Assests/TemplateViewer.png" loading="lazy"/>
+    </a>
+    `,
+    `
+    <a class="link" href="https://www.rochester.edu/human-resources/myurhr/" target="_blank" tabindex="0">
+      <h1 class="title">MyURHR</h1>
+      <img class="preview" src="Assests/myURHR.png" loading="lazy"/>
     </a>
     `
     ];
