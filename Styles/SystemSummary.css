@@ -19,12 +19,6 @@ body{
     width: 100vw;
 }
 
-#markers {
-    display: flex;
-    gap: 15px;
-    align-self: center;
-}
-
 #markers a{
     color: white;
 }
@@ -49,7 +43,6 @@ ul li a:hover{
 section {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     width: 100vw;
 }
 
@@ -57,7 +50,7 @@ section ul {
     display: none;
     justify-self: flex-start;
     flex-wrap: wrap;
-    text-align: center;
+    text-align: left;
     gap: 50px;
     color: white;
     text-decoration: none;
@@ -75,6 +68,7 @@ section button {
     color: white;
     font-size: 18px;
     cursor: pointer;
+    text-align: left;
 }
 
 

@@ -525,21 +525,21 @@ function filterSearch() {
 
 
 
-    
+    /*
+    Add hats to the links for chrismas update
     for (let i = 0; i < links.children.length; i++){
       var santaHat = document.createElement("img");
       santaHat.setAttribute("src", "Assests/Chrismas_Hat.png")
       santaHat.classList.add("Chrismas-Hat")
       links.children[i].appendChild(santaHat)
     }
-
+    */
     document.documentElement.scrollTop = 0;
 }
 
 // Items that would copy to clipboard
 const copyLink = {
-    "Haiku Server and Path":
-        "Server = ercd-sproxy.urmc.rochester.edu Path = soapproxies-haiku",
+    "Haiku Server and Path": "Server = ercd-sproxy.urmc.rochester.edu Path = soapproxies-haiku",
     "Dimensions Tenant URL": "https://univofrochester.prd.mykronos.com",
     "SCCM Computer Name": "SYSMGMTADMIN",
     "Pager Number": "+15852209506",
