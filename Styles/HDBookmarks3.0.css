@@ -118,6 +118,7 @@ a {
   min-width: 20%;
   max-height: fit-content;
   align-self: center;
+
 }
 
 .copy-buttons button:hover {
@@ -141,10 +142,20 @@ a {
 
 
 .copy-buttons {
-  width: 100%;
+  width: 90%;
+  height: fit-content;
+  gap: 30px;
   display: flex;
   justify-content: space-evenly;
+  overflow-x: scroll;
+  padding: 10px 10px;
+  scrollbar-width: none;
 }
+
+.copy-buttons::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Edge */
+}
+
 
 .snowflake {
   position: absolute;

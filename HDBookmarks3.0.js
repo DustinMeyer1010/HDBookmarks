@@ -496,7 +496,7 @@ function filterSearch() {
     `,
     `
     <a class="link" href="https://www.rochester.edu/human-resources/myurhr/" target="_blank" tabindex="0">
-      <h1 class="title">MyURHR</h1>
+      <h1 class="title">MyURHR & Workday</h1>
       <img class="preview" src="Assests/myURHR.png" loading="lazy"/>
     </a>
     `
@@ -543,6 +543,8 @@ const copyLink = {
     "Dimensions Tenant URL": "https://univofrochester.prd.mykronos.com",
     "SCCM Computer Name": "SYSMGMTADMIN",
     "Pager Number": "+15852209506",
+    "PACS Access URL": "https://urmcprod.service-now.com/sp?id=sc_cat_item&sys_id=78999f871bd5511089d184c3604bcbd0",
+    "eRecord Training Request URL": "https://urmcprod.service-now.com/sp?id=sc_cat_item&table=sc_cat_item&sys_id=cb6380f6db42f340646c273605961941&searchTerm=Training", 
 };
 
 // Copies based on buttons pressed

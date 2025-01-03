@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="Styles/HDBookmarks3.0.css">
     <link rel="stylesheet" href="Styles/navbar.css">
     <link rel="stylesheet" href="Styles/global.css">
-    <script src="HDBookmarks3.0.js"></script>
+   
 
   </head>
 
@@ -60,7 +60,7 @@
 
     <div class="page">
       <div class="information">
-        <div><a href="Pages/Update.html">3.1 Update Logs</a></div>
+        <div><a href="Pages/Update.html">3.2 Update Logs</a></div>
         <p>For Request and Bug Fixes Contact: Dustin Meyer</p>
       </div>
       <div class="copy-buttons">
@@ -84,6 +84,16 @@
         <br/>
         <sub>Click to Copy</sub>
       </button>
+      <button onclick=copyToClipboard(this) tabindex="-1">
+        <span>PACS Access URL</span>
+        <br/>
+        <sub>Click to Copy</sub>
+      </button>
+      <button onclick=copyToClipboard(this) tabindex="-1">
+        <span>eRecord Training Request URL</span>
+        <br/>
+        <sub>Click to Copy</sub>
+      </button>
     </div>
       <!-- Links added here when page is generated -->
     <div class="links" id="all-links">
@@ -97,5 +107,11 @@
 
     document.getElementById("filter-search").focus();
     document.getElementById("filter-search").select();
+    document.querySelector('.copy-buttons').addEventListener('wheel', function (event) {
+    event.preventDefault(); 
+    this.scrollLeft += event.deltaY / 1.2;
+    }); 
   </script>
+   <script src="HDBookmarks3.0.js"></script>
+   
 </html>

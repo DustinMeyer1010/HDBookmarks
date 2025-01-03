@@ -1,0 +1,799 @@
+$("#datepicker").datepicker({
+    changeMonth: true,
+    changeYear: true,
+    yearRange: "1930:2049",
+    defaultDate: new Date()
+});
+
+const table = $('#persons').DataTable({
+    select: {
+        style: 'single',
+        toggleable: false,
+    },
+    language: {
+        search: "Filter Search Results: ",
+        emptyTable: "No search results"
+    },
+    lengthMenu: [5, 10, 25, 50, 100],
+    order: [],
+});
+
+table.on('select', async (e, dt, type, indexes) => {
+    if (type === 'row') {
+        const rowData = table.rows({ selected: true }).data()[0];
+        const urid = rowData[3];
+        await displayPersonInfo(urid);
+    }
+});
+
+const loadingIndicatorTimer = new LoadingIndicatorTimer({
+    indicatorFn: showLoadingIndicator,
+});
+
+async function displayPersonInfo(urid) {
+    try {
+        loadingIndicatorTimer.start();
+        const personInfo = await fetchPersonInfo(urid);
+
+        // If personInfo == null, that means the request was aborted by starting another request.
+        // EG: The user clicked another row before the current row finished loading.
+        // In that case do not call loadingIndicatorTimer.stop() as it will overwrite the result from the newer request.
+        if (personInfo) {
+            loadingIndicatorTimer.stop(() => {
+                renderPersonInfo(personInfo);
+            });
+        }
+    }
+    catch (e) {
+        console.log(e);
+        loadingIndicatorTimer.stop(() => {
+            showLoadingError();
+        });
+    }
+}
+
+// Return person info JSON object or null if request was aborted (because another one
+// was started).
+let controller;
+async function fetchPersonInfo(urid) {
+    if (controller) {
+        controller.abort();
+    }
+
+
+    const url = `/identity/admin/rest/users/${urid}`;
+    try {
+        controller = new AbortController();
+        const response = await fetch(url, { signal: controller.signal });
+        controller = null;
+        if (response.status == 401 || response.redirected) {
+            // Session timed out or otherwise logged out/invalidated.
+            window.location = "/identity/admin";
+        }
+        else if (response.status == 200) {
+            return await response.json();
+        }
+        else {
+            throw new Error("Unexpected response status when fetching user info: " + response.status);
+        }
+    }
+    catch (e) {
+        controller = null;
+        if (e.name == 'AbortError') {
+            return null;
+        }
+        else {
+            throw e;
+        }
+    }
+}
+
+function showLoadingIndicator() {
+    setPersonDetailsHeaderDetail('');
+    const body = document.getElementById('person-details-body');
+    body.innerHTML = `<div class="mx-auto d-flex flex-column align-content-center">
+            <h5>Fetching person details...</h5>
+            <img src="images/processingbar.gif">
+        </div>`;
+}
+
+function showLoadingError() {
+    setPersonDetailsHeaderDetail('');
+    const body = document.getElementById('person-details-body');
+    body.innerHTML = `<div class="alert alert-danger">
+        Failed to retrieve person details. Please try again later.
+        <br>
+        If the problem persists, please contact the Univerity IT Helpdesk.
+    <div>`;
+}
+
+// Sets the HTML in the outer "Person Details" card header. EG: "Person Details - {{detail}}"
+function setPersonDetailsHeaderDetail(detail) {
+    const headerDetail = document.getElementById('person-details-header');
+    headerDetail.innerHTML = detail;
+}
+
+function renderPersonInfo(personInfo) {
+    const headerDetail = `- ${personInfo.identity.firstName} ${personInfo.identity.lastName} (${personInfo.identity.netId})`
+    setPersonDetailsHeaderDetail(headerDetail);
+
+    const cardBody = document.getElementById('person-details-body');
+    cardBody.innerHTML = `<div class="col-3" style="padding-right: 1rem;">
+            <div class="list-group" id="list-tab" roles="tablist"></div>
+        </div>
+        <div class="col-9">
+            <div class="tab-content" id="nav-tabContent"></div>
+        </div>`;
+
+    const listContainer = document.getElementById('list-tab');
+
+    const detailContainer = document.getElementById('nav-tabContent');
+    
+    addDetailItem({
+        listName: 'Identity Information',
+        listId: 'list-identity-list',
+        detailId: 'list-identity',
+        active: true,
+        detailTitle: "Identity Information",
+        detailContent: identityContentTemplate(personInfo.identity),
+        listContainer,
+        detailContainer,
+    });
+
+    addDetailItem({
+        listName: 'UR Person Notes',
+        listId: 'list-ur-person-notes-list',
+        detailId: 'list-ur-person-notes',
+        numItems: personInfo.identity.urPersonNotes ? 1 : 0,
+        detailTitle: 'UR Person Notes',
+        detailHelp: `Person notes are used by the incident response team to mark when an account has been disabled or restored.
+        It can also be appended to by help desk staff for notes about the person.`,
+        detailContent: urPersonNotesTemplate({ note: personInfo.identity.urPersonNotes }),
+        listContainer,
+        detailContainer,
+    })
+
+    addDetailItem({
+        listName: 'Relationships',
+        listId: 'list-relationships-to-list',
+        detailId: 'list-relationships-to',
+        detailTitle: "Relationships",
+        detailContent: relationshipsContentTemplate({ relationships: wordWrapRelationships(personInfo.relationships) }),
+        numItems: personInfo.relationships.length,
+        listContainer,
+        detailContainer,
+    });
+
+    $('#relationships-table').DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        scrollX: true,
+        order: [[0, 'asc'], [1, 'asc']],
+    });
+
+    addDetailItem({
+        listName: 'Subordinates',
+        listId: 'list-reports-to-list',
+        detailId: 'list-reports-to',
+        detailTitle: "Subordinates",
+        detailContent: subordinatesContentTemplate({ reportsTo: personInfo.subordinates }),
+        numItems: personInfo.subordinates.length,
+        listContainer,
+        detailContainer,
+    });
+
+    $('#subordinates-table').DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        scrollX: true,
+        order: [[1, 'asc'], [0, 'asc']],
+    });
+
+    addDetailItem({
+        listName: 'Deprovisioning Events',
+        listId: 'list-deprov-to-list',
+        detailId: 'list-deprov-to',
+        detailTitle: "Deprovisioning Events",
+        detailContent: deprovisioningEventsContentTemplate({ deprovs: personInfo.deprovs }),
+        numItems: personInfo.deprovs.length,
+        listContainer,
+        detailContainer,
+    });
+
+    $('#deprovisioning-table').DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        scrollX: true,
+        order: [[0, 'desc']],
+    });
+
+    addDetailItem({
+        listName: 'Accounts',
+        listId: 'list-acounts-list',
+        hasAction: false,
+        numItems: personInfo.accounts.length,
+        listContainer,
+    });
+
+    for (account of personInfo.accounts) {
+        const listName = account.typeName;
+        const detailTitle = account.typeName + " Account";
+        const listId = `list-${account.type}-${account.typeNumber}-list`;
+        const detailId = `list-${account.type}-${account.typeNumber}`;
+        const detailContent = getAccountDetail(account);
+        const showAccountAlert = account.showAccountAlert;
+        
+        addDetailItem({
+            listName,
+            listId,
+            detailId,
+            indent: true,
+            detailTitle,
+            detailContent,
+            listContainer,
+            detailContainer,
+            showAccountAlert,
+        });
+    }
+
+    $('#person-details .list-group-item-action').on('click', function(e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+
+    $('.list-group-item-action').on('shown.bs.tab', function (e) {
+        // Once the table is shown we have to tell datatables to recalculate column widths and redraw.
+        const listTargetId = e.target.id;
+        const cardTargetId = listTargetId.slice(0, listTargetId.length - '-list'.length);
+        $(`#${cardTargetId} .dataTable`).DataTable().columns.adjust().draw();
+    });
+
+    $('.tooltip-help').popover({
+        trigger: 'hover',
+        delay: 300,
+        placement: 'top',
+    });
+}
+
+function wordWrapRelationships(relationships) {
+    const opts = {width: 20, newline: '<br>'};
+    for (relationship of relationships) {
+        relationship.departmentName = wrap(relationship.departmentName, opts);
+        relationship.title = wrap(relationship.title, opts);
+    }
+    return relationships;
+}
+
+function getAccountDetail(account) {
+    const accountType = account.type;
+    let detailContent;
+    if (accountType == 'netid') {
+        detailContent = netIdAccountDetailTemplate(account);
+    }
+    else if (accountType == 'urad') {
+        detailContent = urAdAccountDetailTemplate(account);
+    }
+    else if (accountType == 'urmcad') {
+        detailContent = urmcAdAccountDetailTemplate(account);
+    }
+    else if (accountType == 'gmail') {
+        detailContent = gmailAccountDetailTemplate(account);
+    }
+    else if (accountType == 'workday') {
+        detailContent = workdayAccountDetailTemplate(account);
+    }
+    else if (accountType == 'hrms-alt-login') {
+        detailContent = hrmsAlternateLoginAccountDetailTemplate(account);
+    }
+    else if (accountType == 'cumsal') {
+        detailContent = workdayAccountDetailTemplate(account);
+    }
+    else {
+        console.error("Unsupported account type: " + JSON.stringify(account));
+    }
+    return detailContent;
+}
+
+
+function addDetailItem(params) {
+    const {
+        listId,
+        detailId,
+        active = false,
+        hasAction = true,
+        indent = false,
+        listName,
+        numItems = null,
+        detailTitle,
+        detailHelp,
+        detailContent,
+        listContainer,
+        detailContainer,
+        showAccountAlert = false,
+    } = params; 
+    
+    const listItem = $(listItemTemplate({
+        listId,
+        detailId,
+        active,
+        hasAction,
+        indent,
+        listName,
+        hasNumItems: (typeof numItems === 'number'),
+        numItems,
+        showAccountAlert,
+    }));
+    listContainer.append(listItem[0]);
+
+    if (hasAction) {
+        const detailItem = detailItemTemplate({
+            listName,
+            listId,
+            detailId,
+            active,
+            detailTitle,
+            detailHelp,
+            detailContent,
+        });
+
+        const detailNode = $(detailItem)[0];
+
+        detailContainer.append(detailNode);
+    }
+}
+
+Handlebars.registerPartial('tooltip-help',
+    `<span tabindex="0"
+    class="badge badge-secondary tooltip-help ml-1"
+    role="button"
+    data-toggle="popover"
+    data-tigger="focus"
+    data-content="{{content}}">?</span>`);
+
+const accountStaleNotice = `<div class="alert alert-info" role="alert">
+  Account information on this screen may not be entirely up to date. Updates to the account may take up to 24 hours to reflect on this screen.
+</div>`;
+
+const listItemTemplate = Handlebars.compile(
+    `<li
+    class="list-group-item d-flex justify-content-between align-items-center
+        {{#if indent}}
+            pl-5
+        {{/if}}
+
+        {{#if hasAction}}
+            list-group-item-action pointy
+        {{/if}}
+
+        {{#if active}}
+            active
+        {{/if}}
+        "
+    id="{{listId}}"
+    href="#{{detailId}}"
+    role="tab"
+    aria-controls="home">
+
+    {{listName}}
+
+    {{#if showAccountAlert}}
+      <span style="color: red;"><b> ALERT </b></span>
+    {{/if}}
+
+    {{#if hasNumItems}}
+        {{#if numItems}}
+            <span class="badge badge-primary badge-pill">{{numItems}}</span>
+        {{else}}
+            <span class="badge badge-secondary badge-pill">{{numItems}}</span>
+        {{/if}}
+    {{/if}}
+</li>`);
+
+const detailItemTemplate = Handlebars.compile(`<div class="tab-pane fade {{#if active}}show active{{/if}}" id="{{detailId}}"
+            role="tabpanel" aria-labelledby="{{listId}}">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {{detailTitle}}
+                        {{#if detailHelp}}
+                            {{> tooltip-help content=detailHelp}}
+                        {{/if}}
+                    </h5>
+                    {{{detailContent}}}
+                </div>
+            </div>  
+        </div>`);
+
+const subordinatesContentTemplate = Handlebars.compile(`{{#if reportsTo.length}}<table id="subordinates-table" class="table table-striped table-sm" style="width: 100%">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>System</th>
+            <th>Division</th>
+            <th>Affiliation</th>
+            <th>URID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each reportsTo}}
+            <tr>
+                <td>{{this.firstName}}</td>
+                <td>{{this.lastName}}</td>
+                <td>{{this.systemName}}</td>
+                <td>{{this.division}}</td>
+                <td>{{this.affiliation}}</td>
+                <td>{{this.urid}}</td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+{{else}}
+No subordinates
+{{/if}}`);
+
+const relationshipsContentTemplate = Handlebars.compile(`
+{{#if relationships.length}}
+<table id="relationships-table" class="table table-striped table-sm nowrap" style="width: 100%">
+    <thead>
+        <tr>
+            <th>Status</th>
+            <th>System</th>
+            <th>Division</th>
+            <th>Department</th>
+            <th>Affiliation</th>
+            <th>Job Code</th>
+            <th>Title</th>
+            <th>Employee Num</th>
+            <th>Reports To</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each relationships}}
+            <tr>
+                <td>{{this.status}}</td>
+                <td>{{this.systemName}}</td>
+                <td>{{this.division}}</td>
+                <td>{{{this.departmentName}}}{{#if this.departmentNumber}}<br>({{this.departmentNumber}}){{/if}}</td>
+                <td>{{this.affiliation}}</td>
+                <td>{{this.jobCode}}</td>
+                <td>{{{this.title}}}</td>
+                <td>{{this.employeeNumber}}</td>
+                <td>
+                {{#if this.reportsToName}}
+                    {{this.reportsToName}} 
+                    {{#if this.reportsToUrid}}
+                        <br>({{this.reportsToUrid}})
+                    {{/if}}
+                {{else}}
+                    {{#if this.reportsToUrid}}
+                        {{this.reportsToUrid}}
+                    {{/if}}
+                {{/if}}
+                </td>
+                <td>{{this.startDate}}</td>
+                <td>{{this.endDate}}</td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+{{else}}
+No relationships
+{{/if}}`);
+
+const deprovisioningEventsContentTemplate = Handlebars.compile(`{{#if deprovs.length}}<table id="deprovisioning-table" class="table table-striped table-sm" style="width: 100%">
+    <thead>
+        <tr>
+            <th>Event Date</th>
+            <th>Description</th>
+            <th>Account Name</th>
+            <th>Entity Type</th>
+            <th>Operation Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each deprovs}}
+            <tr>
+                <td>{{this.createDate}}</td>
+                <td>{{this.description}}</td>
+                <td>{{this.accountName}}</td>
+                <td>{{this.entityType}}</td>
+                <td>{{this.operationName}}</td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>
+{{else}}
+No deprovisioning events
+{{/if}}`);
+
+const identityContentTemplate = Handlebars.compile(
+    `<table class="table details-table">
+    <tbody>
+	        <tr><td>URID</td> <td>{{urid}}</td></tr>
+            <tr>
+                <td>Affiliations</td>
+                <td>
+                {{#if affiliations.[1]}}
+                    <ul class="mb-0">
+                    {{#each affiliations}}<li>{{this}}</li>{{/each}}
+                    </ul>
+                {{else}}
+                    {{affiliations.[0]}}
+                {{/if}}
+                </td>
+            </tr>
+	        <tr>
+                <td>Roles</td>
+                <td>
+                {{#if roles.[1]}}
+                    <ul class="mb-0">
+                    {{#each roles}}<li>{{this}}</li>{{/each}}
+                    </ul>
+                {{else}}
+                    {{roles.[0]}}
+                {{/if}}
+                </td>
+            </tr>
+	        <tr>
+                <td>Status</td>
+                <td>
+                {{#if status.[1]}}
+                    <ul class="mb-0">
+                    {{#each status}}<li>{{this}}</li>{{/each}}
+                    </ul>
+                {{else}}
+                    {{status.[0]}}
+                {{/if}}
+                </td>
+            </tr>
+	        <tr><td>Primary Email</td> <td>{{primaryEmail}}</td></tr>
+	        <tr><td>Online Directory Email</td> <td>{{directoryEmail}}</td></tr>
+	        <tr><td>Online Directory <br> First.Last Email</td> <td>{{directoryFirstLastEmail}}</td></tr>
+            <tr>
+                <td>myIdentity</td>
+                <td class='pt-0'>
+                    <table class='table'>
+                        <tbody>
+                        {{#if myIdentityDetails.hasItimAccount}}
+                            <tr style='border-top: hidden;'>
+                                <td>Activated in myIdentity</td>
+                                <td>
+                                    {{#if myIdentityDetails.isActivated}}
+                                    Yes
+                                    {{else}}
+                                    No
+                                    {{/if}}
+                                </td>
+                            </tr>
+                            {{#unless myIdentityDetails.isActivated}}
+                                <tr>
+                                    <td>
+                                        Authorized to activate
+                                        {{> tooltip-help content="Users are allowed to activate in myIdentity if they are not already
+                                        activated and they have an active status or an early provisioning role."}}
+                                    </td>
+                                    <td>
+                                        {{#if myIdentityDetails.isAuthorizedToActivate}}
+                                            Yes
+                                        {{else}}
+                                            No
+                                        {{/if}}
+                                    </td>
+                                </tr>
+                            {{/unless}}
+                            <tr>
+                                <td>Locked in myIdentity</td>
+                                <td>
+                                    {{#if myIdentityDetails.isLocked}}
+                                    Yes, locked.
+                                    {{else}}
+                                    No
+                                    {{/if}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Secret question set in<br>myIdentity</td>
+                                <td>
+                                    {{#if myIdentityDetails.isSecretQuestionSet}}
+                                        Yes on {{myIdentityDetails.secretQuestionSetDate}}
+                                    {{else}}
+                                        No
+                                    {{/if}}
+                               </td>
+                            </tr>
+                        {{else}}
+                            <tr style='border-top: hidden;'>
+                                <td colspan="2">
+                                    <span style="color: red;">No myIdentity account. Cannot use myIdentity self service.</span>
+                                </td>
+                            </tr>
+                        {{/if}}
+                        </tbody>
+                    </table>
+                  </td>
+                </tr>
+          </tbody>
+</table>`);
+
+const netIdAccountDetailTemplate = Handlebars.compile(`${ accountStaleNotice }<table class="table details-table">
+            <tr><td>Account Name <span class="font-weight-normal">(uid)</span></td> <td>{{accountName}}</td></tr>
+            <tr><td>Name on Account <span class="font-weight-normal">(cn)<span></td> <td>{{nameOnAccount}}</td></tr>
+            <tr><td>Account Enabled</td> <td>{{accountEnabled}}</td></tr>
+			<tr><td>eduPersonAffiliation</td> <td>{{eduPersonAffiliation}}</td></tr>
+			<tr><td>URPSEmployeeStatus</td> <td>{{URPSEmployeeStatus}}</td></tr>
+            <tr><td>Deprovisioning Target Lock Date <br>
+                <span class="font-weight-normal">(urLockDate)<span></td> <td>{{lockDate}}</td></tr>
+            <tr><td>Deprovisioning Target Removal Date <br>
+                <span class="font-weight-normal">(urRemoveDate)<span></td> <td>{{removeDate}}</td></tr>
+            <tr>
+                <td>Email address <span class="font-weight-normal">(UREmailBox)<span></td>
+                <td>{{urEmailBox}}</td>
+            </tr>
+            <tr>
+                <td>First.Last alias <span class="font-weight-normal">(mail)<span></td>
+                <td>
+                {{#if mail.[1]}}
+                    <ul class="mb-0">
+                    {{#each mail}}<li>{{this}}</li>{{/each}}
+                    </ul>
+                {{else}}
+                    {{mail}}
+                {{/if}}
+                </td>
+            </tr>
+        </table>`);
+
+const urPersonNotesTemplate = Handlebars.compile(`<div>
+            {{#if note}}
+                <pre>{{note}}</pre>
+            {{else}}
+                No person notes.
+            {{/if}}
+		</div>`);
+
+const workdayAccountDetailTemplate = Handlebars.compile(`<table class="table details-table">
+	        <tr><td>Account Name</td> <td>{{accountName}}</td></tr>
+	        <tr><td>Account Enabled</td> <td>{{accountEnabled}}</td></tr>
+	        <tr><td>Lock Date</td> <td>{{lockDate}}</td></tr>
+	        <tr><td>Remove Date</td> <td>{{removeDate}}</td></tr>
+		</table>`);
+
+const gmailAccountDetailTemplate = Handlebars.compile(`<table class="table details-table">
+	        <tr><td>Account Name</td> <td>{{accountName}}</td></tr>
+	        <tr><td>Name on Account</td> <td>{{nameOnAccount}}</td></tr>
+	        <tr><td>Account Enabled</td> <td>{{accountEnabled}}</td></tr>
+	        <tr><td>Lock Date</td> <td>{{lockDate}}</td></tr>
+	        <tr><td>Remove Date</td> <td>{{removeDate}}</td></tr>
+	        <tr><td>Mail</td> <td>{{mail}}</td></tr>
+	        <tr><td>Container Name</td> <td>{{containerName}}</td></tr>
+	        <tr><td>First Name</td> <td>{{firstName}}</td></tr>
+	        <tr><td>Last Name</td> <td>{{lastName}}</td></tr>
+		</table>`);
+
+const hrmsAlternateLoginAccountDetailTemplate = Handlebars.compile(`<table class="table details-table">
+	        <tr><td>Account Name</td> <td>{{accountName}}</td></tr>
+	        <tr><td>Name on Account</td> <td>{{nameOnAccount}}</td></tr>
+	        <tr><td>Account Enabled</td> <td>{{accountEnabled}}</td></tr>
+	        <tr><td>Lock Date</td> <td>{{lockDate}}</td></tr>
+	        <tr><td>Remove Date</td> <td>{{removeDate}}</td></tr>
+	        <tr><td>UR HRMS IdM NetID</td> <td>{{urHrmsIdmNetId}}</td></tr>
+	        <tr><td>UR HRMS IdM URID</td> <td>{{urHrmsIdmUrId}}</td></tr>
+	        <tr><td>UR HRMS IdM EMP ID</td> <td>{{urHrmsIdmEmpId}}</td></tr>
+		</table>`);
+
+Handlebars.registerPartial('extension-attributes',
+    `<tr>
+                <td>
+                    Extension Attributes
+                </td>
+                {{#if extensionAttributes}}
+                    <td class="pt-0">
+                        <table class='table'>
+                            <tbody>
+                            {{#each extensionAttributes as |value key|}}
+                            
+                                {{#if @index}}
+                                <tr>
+                                {{else}}
+                                <tr style='border-top: hidden;'>
+                                {{/if}}
+
+                                    <td>extensionAttribute{{key}}</td>
+                                    <td>{{value}}</td>
+                                </tr>
+                            {{/each}}
+                            </tbody>
+                        </table>
+                {{else}}
+                    <td>
+                {{/if}}
+                </td>
+            </tr>`);
+
+const urAdAccountDetailTemplate = Handlebars.compile(`{{#if idleUser}}
+													     <div class="alert alert-danger" role="alert">{{{idleUser}}}</div>
+													  {{/if}}
+													  {{#if underLicensedURAD}}
+													     <div class="alert alert-danger" role="alert">{{{underLicensedURAD}}}</div>
+													  {{/if}}
+			${ accountStaleNotice }<table class="table details-table">
+	        <tr><td>Account Name</td> <td>{{accountName}}</td></tr>
+	        <tr><td>Name on Account</td> <td>{{nameOnAccount}}</td></tr>
+	        <tr><td>Account Enabled</td> <td>{{accountEnabled}}</td></tr>
+	        <tr><td>Lock Date</td> <td>{{lockDate}}</td></tr>
+	        <tr><td>Remove Date</td> <td>{{removeDate}}</td></tr>
+	        <tr><td>URID</td> <td>{{urid}}</td></tr>
+	        <tr>
+                <td>
+                    URIDM1
+                    {{> tooltip-help content="Holds URID value for secondary AD accounts."}}
+                </td>
+                <td>{{uridm1}}</td>
+            </tr>
+	        <tr><td>Distinguished Name</td> <td>{{distinguishedName}}</td></tr>
+	        <tr><td>Mail</td> <td>{{mail}}</td></tr>
+	        <tr>
+                <td>erGroup</td>
+                <td>
+                {{#if erGroup.[1]}}
+                    <ul class="mb-0">
+                    {{#each erGroup}}<li>{{this}}</li>{{/each}}
+                    </ul>
+                {{else}}
+                    {{erGroup.[0]}}
+                {{/if}}
+                </td>
+            </tr>
+	        <tr><td>Target Address</td> <td>{{targetAddress}}</td></tr>
+	        <tr><td>Mail Store</td> <td>{{mailStore}}</td></tr>
+	        <tr><td>Last Logon</td> <td>{{lastLogon}}</td></tr>
+            {{> extension-attributes}}
+		</table>`);
+
+const urmcAdAccountDetailTemplate = Handlebars.compile(`{{#if idleUser}}
+													     <div class="alert alert-danger" role="alert">{{{idleUser}}}</div>
+													  {{/if}}
+													  {{#if underLicensedURMCAD}}
+													     <div class="alert alert-danger" role="alert">{{{underLicensedURMCAD}}}</div>
+													  {{/if}}
+            ${ accountStaleNotice }<table class="table details-table">
+	        <tr><td>Account Name</td> <td>{{accountName}}</td></tr>
+	        <tr><td>Name on Account</td> <td>{{nameOnAccount}}</td></tr>
+	        <tr><td>Account Enabled</td> <td>{{accountEnabled}}</td></tr>
+	        <tr><td>URRoleStatus</td> <td>{{URRoleStatus}}</td></tr>
+	        <tr><td>Lock Date</td> <td>{{lockDate}}</td></tr>
+	        <tr><td>Remove Date</td> <td>{{removeDate}}</td></tr>
+	        <tr><td>URID</td> <td>{{urid}}</td></tr>
+	        <tr>
+                <td>
+                    URID2
+                    {{> tooltip-help content="Holds URID value for secondary AD accounts."}}
+                </td>
+                <td>{{urid2}}</td>
+            </tr>
+	        <tr><td>Distinguished Name</td> <td>{{distinguishedName}}</td></tr>
+	        <tr><td>Mail</td> <td>{{mail}}</td></tr>
+	        <tr>
+                <td>erGroup</td>
+                <td>
+                {{#if erGroup.[1]}}
+                    <ul class="mb-0">
+                    {{#each erGroup}}<li>{{this}}</li>{{/each}}
+                    </ul>
+                {{else}}
+                    {{erGroup.[0]}}
+                {{/if}}
+                </td>
+            </tr>
+	        <tr><td>Target Address</td> <td>{{targetAddress}}</td></tr>
+	        <tr><td>Mail Store</td> <td>{{mailStore}}</td></tr>
+   	        <tr><td>Last Logon</td> <td>{{lastLogon}}</td></tr>
+            {{> extension-attributes}}
+		</table>`);
+
