@@ -18,6 +18,20 @@ function filterSearch() {
     // All links shown on the page
     links_array = [
       `
+      <a class="link" href="https://portal.vpn.urmc.rochester.edu" target="_blank" tabindex="0">
+        <h1 class="title">Global Protect Install </h1>
+        <img class="preview" src="Assests/GP.png" loading="lazy"/>
+        <p class="description">Install link for GP when someone is remote</p>
+      </a>
+      `,
+      `
+      <a class="link" href="https://webvpn.urmc.rochester.edu" target="_blank" tabindex="0">
+        <h1 class="title">Cisco AnyConnect Install</h1>
+        <img class="preview" src="Assests/Cisco.png" loading="lazy"/>
+        <p class="description">Install link for Cisco when someone is remote</p>
+      </a>
+      `,
+      `
       <a class="link" href="https://urmcprod.service-now.com" target="_blank" tabindex="0"> 
         <h1 class="title">Internal ServiceNow</h1> 
         <img class="preview" src="Assests/Internal_SN.png" loading="eager"/> 

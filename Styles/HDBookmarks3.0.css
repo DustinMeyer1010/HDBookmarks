@@ -113,7 +113,7 @@ a {
   border: 1px solid rgba(255,255,255,0.1);
   background: transparent;
   font-size: 18px;
-  padding: 10px;
+  padding: 20px;
   border-radius: 10px;
   min-width: 20%;
   max-height: fit-content;
@@ -122,7 +122,6 @@ a {
 }
 
 .copy-buttons button:hover {
-  transform: scale(1.05);
   background: rgba(255,255,255,0.1);
   outline: 1px solid;
 }
@@ -148,8 +147,8 @@ a {
   display: flex;
   justify-content: space-evenly;
   overflow-x: scroll;
-  padding: 10px 10px;
   scrollbar-width: none;
+  padding: 5px;
 }
 
 .copy-buttons::-webkit-scrollbar {
