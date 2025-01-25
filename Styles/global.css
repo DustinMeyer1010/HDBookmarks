@@ -2,10 +2,10 @@
   --background-color-dark: #121212;
   background: var(--background-color-dark);
   font-family: roboto;
-  overflow-x: hidden;
+  overflow: hidden;
   color: white;
 }
 
 body {
-  padding-top: 50px;
+  padding-top: 45px;
 }

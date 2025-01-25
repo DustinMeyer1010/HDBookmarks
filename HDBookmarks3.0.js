@@ -539,26 +539,31 @@ function filterSearch() {
 
 
 
-    /*
-    Add hats to the links for chrismas update
+    /* 
+    For Valintines Day
+    // Add hats to the links for chrismas update
     for (let i = 0; i < links.children.length; i++){
       var santaHat = document.createElement("img");
-      santaHat.setAttribute("src", "Assests/Chrismas_Hat.png")
+      santaHat.setAttribute("src", "Assests/Heart.png")
       santaHat.classList.add("Chrismas-Hat")
       links.children[i].appendChild(santaHat)
     }
     */
+    
     document.documentElement.scrollTop = 0;
 }
 
 // Items that would copy to clipboard
 const copyLink = {
-    "Haiku Server and Path": "Server = ercd-sproxy.urmc.rochester.edu Path = soapproxies-haiku",
+    "Haiku Server and Path": 
+    `Server = ercd-sproxy.urmc.rochester.edu 
+Path = soapproxies-haiku`,
     "Dimensions Tenant URL": "https://univofrochester.prd.mykronos.com",
     "SCCM Computer Name": "SYSMGMTADMIN",
     "Pager Number": "+15852209506",
     "PACS Access URL": "https://urmcprod.service-now.com/sp?id=sc_cat_item&sys_id=78999f871bd5511089d184c3604bcbd0",
     "eRecord Training Request URL": "https://urmcprod.service-now.com/sp?id=sc_cat_item&table=sc_cat_item&sys_id=cb6380f6db42f340646c273605961941&searchTerm=Training", 
+    "Cadance Build Request": "https://urmcprod.service-now.com/sp?id=sc_cat_item_guide&table=sc_cat_item&sys_id=8f132f6a1b8d551065bec9d3604bcbc5&searchTerm=cadence",
 };
 
 // Copies based on buttons pressed
